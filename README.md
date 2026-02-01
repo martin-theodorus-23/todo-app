@@ -31,7 +31,6 @@ Follow these steps to set up and run the application on your machine.
 ### Step 1: Get the Code
 Download the project files to a folder on your computer. If you have Git installed:
 
-```bash
 git clone <your-repo-url>
 cd todo-app
 Or simply extract the zip file if you downloaded it manually.
