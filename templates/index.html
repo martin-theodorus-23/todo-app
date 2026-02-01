@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To Do & Projects</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+
+      :root {
+        --bg-1: #f5f7fb;
+        --card: #ffffff;
+        --muted: #64748b;
+        --text: #0f172a;
+        --accent: #2563eb;
+        --accent-hover: #1d4ed8;
+        --danger: #ef4444;
+        --radius-lg: 14px;
+        --sidebar-w: 240px;
+      }
+
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(180deg, #eef6ff 0%, var(--bg-1) 100%);
+        display: flex; align-items: center; justify-content: center; padding: 20px; margin: 0;
+      }
+
+      /* Layout Shell */
+      .container {
+        width: 100%; max-width: 960px; height: 85vh;
+        background: var(--card); border-radius: var(--radius-lg);
+        box-shadow: 0 8px 30px rgba(15,23,42,0.08);
+        border: 1px solid rgba(15,23,42,0.03);
+        display: flex; overflow: hidden;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: var(--sidebar-w); background: #f8fafc;
+        border-right: 1px solid #e2e8f0; display: flex; flex-direction: column;
+        padding: 20px; flex-shrink: 0;
+      }
+      .sidebar-header { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 24px; display:flex; align-items:center; gap:8px;}
+      
+      .nav-group { margin-bottom: 24px; }
+      .nav-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+      
+      .nav-item {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 10px 12px; border-radius: 8px; cursor: pointer;
+        color: var(--muted); font-size: 14px; font-weight: 500;
+        transition: all 0.2s; margin-bottom: 4px;
+      }
+      .nav-item:hover { background: #eef2ff; color: var(--accent); }
+      .nav-item.active { background: #eff6ff; color: var(--accent); font-weight: 600; }
+      
+      .proj-item-actions { opacity: 0; transition: opacity 0.2s; }
+      .nav-item:hover .proj-item-actions { opacity: 1; }
+      .del-proj-btn { border: none; background: none; color: var(--muted); cursor: pointer; font-size: 12px; }
+      .del-proj-btn:hover { color: var(--danger); }
+
+      .add-proj-form { display: flex; gap: 8px; margin-top: 8px; }
+      .add-proj-input { flex: 1; padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; }
+      
+      /* Main Content */
+      .main { flex: 1; display: flex; flex-direction: column; position: relative; }
+      
+      .main-header {
+        padding: 20px 28px; border-bottom: 1px solid #f1f5f9;
+        display: flex; justify-content: space-between; align-items: center;
+        background: #fff;
+      }
+      .page-title { font-size: 20px; font-weight: 600; color: var(--text); }
+      
+      .total-time-badge {
+        background: #eff6ff; color: var(--accent); padding: 6px 12px;
+        border-radius: 99px; font-size: 13px; font-weight: 600; font-family: monospace;
+      }
+
+      .content-body { padding: 24px 28px; overflow-y: auto; flex: 1; }
+
+      /* Todo Input */
+      .input-group { display: flex; gap: 10px; margin-bottom: 24px; }
+      .main-input {
+        flex: 1; padding: 14px; border-radius: 10px; border: 1px solid #e2e8f0;
+        font-size: 15px; transition: border-color 0.2s;
+      }
+      .main-input:focus { outline: none; border-color: var(--accent); }
+      .action-btn {
+        padding: 0 20px; border-radius: 10px; border: none;
+        background: var(--accent); color: #fff; font-weight: 600; cursor: pointer;
+        font-size: 18px;
+      }
+      .action-btn:hover { background: var(--accent-hover); }
+
+      /* Task List */
+      .task-list { padding: 0; margin: 0; }
+      .task-item {
+        background: #fff; border: 1px solid #f1f5f9; border-radius: 12px;
+        padding: 12px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px;
+        box-shadow: 0 2px 4px rgba(148,163,184,0.05); transition: transform 0.1s;
+      }
+      .task-item:hover { border-color: #cbd5e1; }
+      
+      .check-circle {
+        width: 20px; height: 20px; border-radius: 50%; border: 2px solid #cbd5e1;
+        cursor: pointer; flex-shrink: 0;
+      }
+      .task-item.done .check-circle { background: var(--accent); border-color: var(--accent); }
+      
+      .task-content { flex: 1; font-size: 15px; color: var(--text); }
+      .task-item.done .task-content { text-decoration: line-through; color: var(--muted); }
+      
+      .task-meta { display: flex; align-items: center; gap: 12px; }
+      .timer-badge { font-family: monospace; background: #f8fafc; padding: 4px 8px; border-radius: 6px; font-size: 13px; color: var(--text); }
+      
+      .icon-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 4px; opacity: 0.7; }
+      .icon-btn:hover { opacity: 1; background: #f1f5f9; border-radius: 4px; }
+      .icon-btn.active { color: #10b981; opacity: 1; }
+
+      /* Auth Overlay */
+      .auth-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(255,255,255,0.95); backdrop-filter: blur(5px);
+        display: flex; justify-content: center; align-items: center; z-index: 10;
+      }
+      .auth-box { width: 300px; text-align: center; }
+      .auth-box input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ccc; }
+      .auth-box button { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: none; cursor: pointer; color: #fff; font-weight: 600; }
+      .btn-login { background: var(--accent); }
+      .btn-reg { background: var(--muted); }
+
+      .hidden { display: none !important; }
+      
+      @media (max-width: 600px) {
+        .container { flex-direction: column; height: 100vh; border-radius: 0; }
+        .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid #e2e8f0; padding: 10px 20px; }
+        .nav-group { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 0; }
+        .nav-item { white-space: nowrap; margin-bottom: 0; }
+        .add-proj-form { display: none; /* Hide project creation on mobile for simplicity */ }
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="container">
+      
+      <div id="authSection" class="auth-overlay">
+        <div class="auth-box">
+          <h2>Welcome Back</h2>
+          <input type="email" id="authEmail" placeholder="Email">
+          <input type="password" id="authPassword" placeholder="Password">
+          <button class="btn-login" onclick="handleAuth('login')">Log In</button>
+          <button class="btn-reg" onclick="handleAuth('register')">Create Account</button>
+          <p id="authAlert" style="color:red; font-size:13px;"></p>
+        </div>
+      </div>
+
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <span>🚀 TaskMaster</span>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-label">Filters</div>
+          <div class="nav-item active" id="nav-inbox" onclick="selectProject(null, 'Inbox')">
+            <span>📥 Inbox</span>
+          </div>
+          <div class="nav-item" id="nav-all" onclick="selectProject('ALL', 'All Tasks')">
+            <span>📚 All Tasks</span>
+          </div>
+        </div>
+
+        <div class="nav-group" style="flex:1; overflow-y:auto">
+          <div class="nav-label" style="display:flex; justify-content:space-between">
+            <span>Projects</span>
+            <span style="cursor:pointer" onclick="toggleProjInput()">+</span>
+          </div>
+          
+          <div id="addProjRow" class="add-proj-form hidden">
+            <input type="text" id="newProjName" class="add-proj-input" placeholder="Name..." onkeypress="handleProjKey(event)">
+            <button class="icon-btn" onclick="createProject()">✓</button>
+          </div>
+
+          <div id="projectList">
+            </div>
+        </div>
+
+        <div class="nav-item" onclick="logout()" style="margin-top:auto; color:var(--danger)">
+          <span>🚪 Logout</span>
+        </div>
+      </div>
+
+      <div class="main">
+        <div class="main-header">
+          <div class="page-title" id="pageTitle">Inbox</div>
+          <div class="total-time-badge" id="totalTime">00:00:00</div>
+        </div>
+
+        <div class="content-body">
+          <div class="input-group">
+            <input type="text" id="todoInput" class="main-input" placeholder="Add a new task..." onkeypress="handleTaskKey(event)">
+            <button class="action-btn" onclick="createTodo()">+</button>
+          </div>
+
+          <ul id="todoList" class="task-list">
+            </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <script>
+      let todos = [];
+      let projects = [];
+      let currentProjectId = null; // null = Inbox, 'ALL' = All
+      let currentProjectName = 'Inbox';
+
+      // --- AUTH ---
+      async function checkSession() {
+        try {
+          const res = await fetch('/api/me');
+          const data = await res.json();
+          if (data.ok) {
+            document.getElementById('authSection').classList.add('hidden');
+            loadData();
+          }
+        } catch(e) {}
+      }
+
+      async function handleAuth(endpoint) {
+        const email = document.getElementById('authEmail').value;
+        const password = document.getElementById('authPassword').value;
+        const alertEl = document.getElementById('authAlert');
+        
+        if(!email || !password) { alertEl.innerText="Missing fields"; return; }
+
+        try {
+          const res = await fetch(`/api/${endpoint}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ email, password })
+          });
+          const data = await res.json();
+          if(res.ok) {
+             if(endpoint === 'login') {
+               document.getElementById('authSection').classList.add('hidden');
+               loadData();
+             } else {
+               alertEl.innerText = "Account created. Please Login.";
+             }
+          } else {
+            alertEl.innerText = data.error;
+          }
+        } catch(e){ alertEl.innerText="Error"; }
+      }
+
+      async function logout() {
+        await fetch('/logout');
+        location.reload();
+      }
+
+      // --- DATA LOADING ---
+      function loadData() {
+        fetchProjects();
+        fetchTodos();
+        fetchTotalTime();
+      }
+
+      async function fetchProjects() {
+        const res = await fetch('/api/projects');
+        if(res.ok) {
+          projects = await res.json();
+          renderProjects();
+        }
+      }
+
+      async function fetchTodos() {
+        const res = await fetch('/api/todos');
+        if(res.ok) {
+          todos = await res.json();
+          renderTodos();
+        }
+      }
+
+      async function fetchTotalTime() {
+        const res = await fetch('/api/total-time');
+        if(res.ok) {
+          const data = await res.json();
+          document.getElementById('totalTime').innerText = data.formatted;
+        }
+      }
+
+      // --- PROJECTS UI ---
+      function renderProjects() {
+        const list = document.getElementById('projectList');
+        list.innerHTML = '';
+        projects.forEach(p => {
+          const div = document.createElement('div');
+          div.className = `nav-item ${currentProjectId === p.id ? 'active' : ''}`;
+          div.onclick = (e) => {
+             // prevent triggering when delete button clicked
+             if(e.target.tagName === 'BUTTON') return;
+             selectProject(p.id, p.name);
+          };
+          div.innerHTML = `
+            <span>📁 ${escapeHtml(p.name)}</span>
+            <div class="proj-item-actions">
+               <button class="del-proj-btn" onclick="deleteProject('${p.id}')">🗑</button>
+            </div>
+          `;
+          list.appendChild(div);
+        });
+      }
+
+      function selectProject(id, name) {
+        currentProjectId = id;
+        currentProjectName = name;
+        document.getElementById('pageTitle').innerText = name;
+        
+        // Update Sidebar Active State
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        if(id === null) document.getElementById('nav-inbox').classList.add('active');
+        else if(id === 'ALL') document.getElementById('nav-all').classList.add('active');
+        else renderProjects(); // Re-render to highlight project
+
+        renderTodos();
+      }
+
+      function toggleProjInput() {
+        document.getElementById('addProjRow').classList.toggle('hidden');
+        document.getElementById('newProjName').focus();
+      }
+
+      async function createProject() {
+        const input = document.getElementById('newProjName');
+        const name = input.value.trim();
+        if(!name) return;
+
+        const res = await fetch('/api/projects', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ name })
+        });
+        if(res.ok) {
+          input.value = '';
+          toggleProjInput();
+          fetchProjects();
+        }
+      }
+
+      async function deleteProject(id) {
+        if(!confirm("Delete project and its tasks?")) return;
+        await fetch(`/api/projects/${id}`, { method: 'DELETE' });
+        // If we deleted current project, go to Inbox
+        if(currentProjectId === id) selectProject(null, 'Inbox');
+        fetchProjects();
+        fetchTodos();
+      }
+
+      // --- TODOS UI ---
+      function renderTodos() {
+        const list = document.getElementById('todoList');
+        list.innerHTML = '';
+
+        // Filter based on current selection
+        let filtered = [];
+        if(currentProjectId === 'ALL') {
+          filtered = todos;
+        } else {
+          // If project_id is missing or null, it belongs to Inbox (null)
+          filtered = todos.filter(t => (t.project_id || null) === currentProjectId);
+        }
+
+        filtered.forEach(t => {
+          // Timer logic
+          let seconds = t.timeSpent || 0;
+          if (t.timerRunning && t.last_started_at) {
+            seconds += Math.floor(Date.now() / 1000 - t.last_started_at);
+          }
+
+          const li = document.createElement('li');
+          li.className = `task-item ${t.status ? 'done' : ''}`;
+          li.innerHTML = `
+            <div class="check-circle" onclick="toggleStatus(${t.id}, ${!t.status})"></div>
+            <div class="task-content">${escapeHtml(t.item)}</div>
+            
+            <div class="task-meta">
+              <span class="timer-badge" id="timer-${t.id}">${formatTime(seconds)}</span>
+              <button class="icon-btn ${t.timerRunning?'active':''}" onclick="doAction(${t.id}, 'start')">▶</button>
+              <button class="icon-btn" onclick="doAction(${t.id}, 'pause')">⏸</button>
+              <button class="icon-btn" onclick="deleteTodo(${t.id})">🗑</button>
+            </div>
+          `;
+          list.appendChild(li);
+        });
+      }
+
+      async function createTodo() {
+        const input = document.getElementById('todoInput');
+        const text = input.value.trim();
+        if(!text) return;
+
+        // If 'All Tasks' is selected, defaulting to Inbox (null)
+        const pid = currentProjectId === 'ALL' ? null : currentProjectId;
+
+        const res = await fetch('/api/todos', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ item: text, project_id: pid })
+        });
+        if(res.ok) {
+          input.value = '';
+          fetchTodos();
+        }
+      }
+
+      async function toggleStatus(id, newStatus) {
+        await fetch(`/api/todos/${id}`, {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ status: newStatus })
+        });
+        fetchTodos();
+      }
+
+      async function deleteTodo(id) {
+        if(!confirm('Delete task?')) return;
+        await fetch(`/api/todos/${id}`, { method: 'DELETE' });
+        fetchTodos();
+        fetchTotalTime();
+      }
+
+      async function doAction(id, action) {
+        await fetch(`/api/todos/${id}/action`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ action })
+        });
+        fetchTodos(); // Refresh list to update timer state
+        fetchTotalTime();
+      }
+
+      // --- UTILS ---
+      function escapeHtml(str) {
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+
+      function formatTime(s) {
+        const h = Math.floor(s / 3600).toString().padStart(2, '0');
+        const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
+        const sc = (s % 60).toString().padStart(2, '0');
+        return `${h}:${m}:${sc}`;
+      }
+
+      function handleTaskKey(e) { if(e.key === 'Enter') createTodo(); }
+      function handleProjKey(e) { if(e.key === 'Enter') createProject(); }
+
+      // --- INTERVALS ---
+      setInterval(() => {
+        let total = 0;
+        todos.forEach(t => {
+          let s = t.timeSpent || 0;
+          if(t.timerRunning && t.last_started_at) {
+            s += Math.floor(Date.now() / 1000 - t.last_started_at);
+          }
+          
+          // Update individual timer if visible
+          const el = document.getElementById(`timer-${t.id}`);
+          if(el) el.innerText = formatTime(s);
+          
+          total += s;
+        });
+        
+        // We could update total time locally here, but fetching from server ensures sync
+        // However, for smooth UI, let's update local display too
+        const totalEl = document.getElementById('totalTime');
+        if(totalEl) totalEl.innerText = formatTime(total);
+      }, 1000);
+
+      // --- INIT ---
+      checkSession();
+
+    </script>
+  </body>
+</html>

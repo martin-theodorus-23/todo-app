@@ -1,0 +1,48 @@
+{
+  "todos": [
+    {
+      "id": 1769942520097,
+      "item": "test logic",
+      "status": false,
+      "timeSpent": 0,
+      "timerRunning": true,
+      "last_started_at": 1769942522.3345194,
+      "owner": "user:7451cee8-d437-4d9d-89e4-28f4d7c9f28c",
+      "project_id": "05201279-8aa1-4d3d-b2c9-e827a60ae670"
+    },
+    {
+      "id": 1769941520057,
+      "item": "Test2",
+      "status": false,
+      "timeSpent": 0,
+      "timerRunning": true,
+      "last_started_at": 1769942001.377211,
+      "owner": "user:7451cee8-d437-4d9d-89e4-28f4d7c9f28c"
+    },
+    {
+      "id": 1769941483792,
+      "item": "ok",
+      "status": false,
+      "timeSpent": 0,
+      "timerRunning": true,
+      "last_started_at": 1769941485.7876468,
+      "owner": "user:7451cee8-d437-4d9d-89e4-28f4d7c9f28c"
+    }
+  ],
+  "users": [
+    {
+      "id": "7451cee8-d437-4d9d-89e4-28f4d7c9f28c",
+      "email": "martintheodorus4@gmail.com",
+      "password": "scrypt:32768:8:1$QcPflLJdXsHcyEJc$423910189e27d04d41a071c8fbc14188de317194f8b9930bd14f740ffe97cd54c261cb49bed891c1f4efaad8895d44d3ed1cc1b123c49198588d3dc6eb8db386"
+    }
+  ],
+  "total_seconds": 0,
+  "projects": [
+    {
+      "id": "05201279-8aa1-4d3d-b2c9-e827a60ae670",
+      "name": "deacon",
+      "owner": "user:7451cee8-d437-4d9d-89e4-28f4d7c9f28c",
+      "created_at": 1769942482.3965049
+    }
+  ]
+}
